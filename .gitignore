@@ -1,0 +1,12 @@
+# local secrets
+.env
+
+# virtualenv
+.venv/
+
+# evaluation artifacts (large / regenerable)
+logs/
+cached_memories_*/
+__pycache__/
+*.pyc
+
