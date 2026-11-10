@@ -56,7 +56,8 @@ class RobustAdvancedMemAgent:
     """Agent using the robust memory system with plain-text LLM calls."""
 
     def __init__(self, model, backend, retrieve_k, temperature_c5,
-                 sglang_host="http://localhost", sglang_port=30000, refresh_index=False):
+                 sglang_host="http://localhost", sglang_port=30000, refresh_index=False,
+                 query_mode="keywords"):
         self.memory_system = RobustAgenticMemorySystem(
             model_name='all-MiniLM-L6-v2',
             llm_backend=backend,
@@ -74,6 +75,7 @@ class RobustAdvancedMemAgent:
         )
         self.retrieve_k = retrieve_k
         self.temperature_c5 = temperature_c5
+        self.query_mode = query_mode
 
     def add_memory(self, content, time=None):
         self.memory_system.add_note(content, time=time)
@@ -112,8 +114,10 @@ Keywords:"""
     def answer_question(self, question: str, category: int, answer: str,
                         rng: Optional[random.Random] = None) -> tuple:
         """Generate answer for a question — plain text, no JSON schema."""
-        keywords = self.generate_query_llm(question)
-        raw_context = self.retrieve_memory(keywords, k=self.retrieve_k)
+        # keywords: A-Mem's query analysis (paper §3.4), one extra LLM call per question.
+        # question: use the raw question as the retrieval query, skipping that call (our ablation).
+        query = question if self.query_mode == "question" else self.generate_query_llm(question)
+        raw_context = self.retrieve_memory(query, k=self.retrieve_k)
         context = raw_context
 
         assert category in [1, 2, 3, 4, 5]
@@ -207,10 +211,12 @@ def evaluate_dataset(dataset_path: str, model: str, output_path: Optional[str] =
                      temperature_c5: float = 0.5, retrieve_k: int = 10,
                      sglang_host: str = "http://localhost", sglang_port: int = 30000,
                      legacy_c5_reference: bool = False, seed: int = 42,
-                     refresh_index: bool = False, memory_scope: str = "conversation"):
+                     refresh_index: bool = False, memory_scope: str = "conversation",
+                     query_mode: str = "keywords"):
     """Evaluate the robust agent on the LoComo dataset."""
     timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M")
-    log_filename = f"eval_robust_{model}_{backend}_ratio{ratio}_{memory_scope}_{timestamp}.log"
+    log_filename = (f"eval_robust_{model}_{backend}_ratio{ratio}_{memory_scope}"
+                    f"_{query_mode}_{timestamp}.log")
     log_path = os.path.join(os.path.dirname(__file__), "logs", log_filename)
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
@@ -246,7 +252,7 @@ def evaluate_dataset(dataset_path: str, model: str, output_path: Optional[str] =
     def load_or_build(sample_idx, sample):
         """An agent holding this conversation's memory, loaded from the cache or built and cached."""
         agent = RobustAdvancedMemAgent(model, backend, retrieve_k, temperature_c5,
-                                       sglang_host, sglang_port, refresh_index)
+                                       sglang_host, sglang_port, refresh_index, query_mode)
 
         memory_cache_file = os.path.join(memories_dir, f"memory_cache_sample_{sample_idx}.pkl")
         retriever_cache_file = os.path.join(memories_dir, f"retriever_cache_sample_{sample_idx}.pkl")
@@ -358,6 +364,7 @@ def evaluate_dataset(dataset_path: str, model: str, output_path: Optional[str] =
         "legacy_c5_reference": legacy_c5_reference,
         "refresh_index": refresh_index,
         "memory_scope": memory_scope,
+        "query_mode": query_mode,
         "pooled_notes": len(pooled_agent.memory_system.memories) if memory_scope == "pooled" else None,
         "cached_samples": cached_samples,
         "stale_cache_samples": stale_cache_samples,
@@ -427,6 +434,10 @@ def main():
                              "(LoCoMo's protocol, as in the paper). pooled: from one memory holding all "
                              "evaluated conversations, so retrieval must also reject other conversations' "
                              "notes (uses the same memory caches)")
+    parser.add_argument("--query_mode", choices=["keywords", "question"], default="keywords",
+                        help="keywords: A-Mem's LLM query-keyword extraction (default, original behaviour). "
+                             "question: use the raw question as the retrieval query, skipping that LLM call "
+                             "(ablation)")
     args = parser.parse_args()
 
     if args.ratio <= 0.0 or args.ratio > 1.0:
@@ -439,7 +450,7 @@ def main():
         dataset_path, args.model, output_path, args.ratio,
         args.backend, args.temperature_c5, args.retrieve_k,
         args.sglang_host, args.sglang_port, args.legacy_c5_reference, args.seed,
-        args.refresh_index, args.memory_scope,
+        args.refresh_index, args.memory_scope, args.query_mode,
     )
 
 
