@@ -1,0 +1,120 @@
+{
+  "description": "Category-5 metrics recomputed from stored predictions under the default (fixed) reference and the legacy trap-answer reference. See score_c5_legacy.py.",
+  "metrics": [
+    "f1",
+    "bleu1",
+    "exact_match"
+  ],
+  "files": {
+    "results_deepseek-chat-ablation_question.json": {
+      "n_c5": 446,
+      "fixed": {
+        "f1": 0.7664664389802875,
+        "bleu1": 0.7641052514176242,
+        "exact_match": 0.7556053811659192
+      },
+      "legacy": {
+        "f1": 0.26355120889544525,
+        "bleu1": 0.254853773325314,
+        "exact_match": 0.23542600896860988
+      },
+      "adversarial_correct_rate": 0.7511210762331838,
+      "prediction_breakdown": {
+        "declines_only": 333,
+        "gives_trap_only": 105,
+        "both": 7,
+        "neither": 1
+      },
+      "legacy_skipped_missing_trap": 0,
+      "recompute_max_abs_diff_vs_stored": 0.0
+    },
+    "results_deepseek-chat-ablation_question_ratio01.json": {
+      "n_c5": 47,
+      "fixed": {
+        "f1": 0.7828267477203648,
+        "bleu1": 0.7807006232538147,
+        "exact_match": 0.7659574468085106
+      },
+      "legacy": {
+        "f1": 0.24470171047142258,
+        "bleu1": 0.24015544466020772,
+        "exact_match": 0.23404255319148937
+      },
+      "adversarial_correct_rate": 0.7659574468085106,
+      "prediction_breakdown": {
+        "declines_only": 36,
+        "gives_trap_only": 11,
+        "both": 0,
+        "neither": 0
+      },
+      "legacy_skipped_missing_trap": 0,
+      "recompute_max_abs_diff_vs_stored": 0.0
+    },
+    "results_robust_deepseek-chat.json": {
+      "n_c5": 446,
+      "fixed": {
+        "f1": 0.7634777236597337,
+        "bleu1": 0.7608692559731085,
+        "exact_match": 0.7511210762331838
+      },
+      "legacy": {
+        "f1": 0.2658935601167202,
+        "bleu1": 0.25852010884262655,
+        "exact_match": 0.242152466367713
+      },
+      "adversarial_correct_rate": 0.7488789237668162,
+      "prediction_breakdown": {
+        "declines_only": 332,
+        "gives_trap_only": 108,
+        "both": 5,
+        "neither": 1
+      },
+      "legacy_skipped_missing_trap": 0,
+      "recompute_max_abs_diff_vs_stored": 0.0
+    },
+    "results_robust_deepseek-chat_ratio01.json": {
+      "n_c5": 47,
+      "fixed": {
+        "f1": 0.7310030395136777,
+        "bleu1": 0.7243230860479298,
+        "exact_match": 0.7021276595744681
+      },
+      "legacy": {
+        "f1": 0.30108468919482684,
+        "bleu1": 0.29405615388006584,
+        "exact_match": 0.2765957446808511
+      },
+      "adversarial_correct_rate": 0.7021276595744681,
+      "prediction_breakdown": {
+        "declines_only": 33,
+        "gives_trap_only": 13,
+        "both": 1,
+        "neither": 0
+      },
+      "legacy_skipped_missing_trap": 0,
+      "recompute_max_abs_diff_vs_stored": 0.0
+    },
+    "results_robust_ollama_qwen15b_ratio01.json": {
+      "n_c5": 47,
+      "fixed": {
+        "f1": 0.2932325140331859,
+        "bleu1": 0.25387718421294636,
+        "exact_match": 0.14893617021276595
+      },
+      "legacy": {
+        "f1": 0.6295904017180612,
+        "bleu1": 0.5585718231199265,
+        "exact_match": 0.3191489361702128
+      },
+      "adversarial_correct_rate": 0.1702127659574468,
+      "prediction_breakdown": {
+        "declines_only": 8,
+        "gives_trap_only": 25,
+        "both": 7,
+        "neither": 7
+      },
+      "legacy_skipped_missing_trap": 0,
+      "recompute_max_abs_diff_vs_stored": 0.0
+    }
+  }
+}
